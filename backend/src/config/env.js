@@ -1,12 +1,14 @@
 import 'dotenv/config';
 
 const requiredEnvVars = ['DATABASE_URL'];
+if (process.env.NODE_ENV === 'production') {
+  requiredEnvVars.push('JWT_SECRET');
+}
 
-for (const key of requiredEnvVars) {
-  if (!process.env[key]) {
-    console.error(`FATAL: Missing required environment variable: ${key}`);
-    process.exit(1);
-  }
+const missing = requiredEnvVars.filter((key) => !process.env[key]);
+if (missing.length > 0) {
+  console.error(`FATAL: Missing required environment variable(s): ${missing.join(', ')}`);
+  process.exit(1);
 }
 
 export const config = {
