@@ -6,6 +6,7 @@ import Employees from './pages/Employees';
 import EmployeeNew from './pages/EmployeeNew';
 import EmployeeEdit from './pages/EmployeeEdit';
 import Leave from './pages/Leave';
+import LeaveNew from './pages/LeaveNew';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
             <Route path="/employees/new" element={<EmployeeNew />} />
             <Route path="/employees/:id/edit" element={<EmployeeEdit />} />
             <Route path="/leave" element={<Leave />} />
+            <Route path="/leave/new" element={<LeaveNew />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

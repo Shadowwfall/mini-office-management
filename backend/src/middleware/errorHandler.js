@@ -11,7 +11,7 @@ export function errorHandler(err, req, res, next) {
   }
 
   // Foreign key restriction violation (e.g. deleting employee with leave records)
-  if (err.code === '23503') {
+  if (err.code === '23503' || err.code === '23001') {
     return res.status(409).json({
       error: { message: 'This employee has leave records. Mark them inactive instead.' }
     });

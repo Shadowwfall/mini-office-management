@@ -1,18 +1,194 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { apiRequest } from '../api/client';
+import LeaveTable from '../components/LeaveTable';
+import Pagination from '../components/Pagination';
+import LoadingMessage from '../components/LoadingMessage';
+import ErrorBanner from '../components/ErrorBanner';
+import EmptyState from '../components/EmptyState';
+
+const STATUS_TABS = [
+  { value: '', label: 'All Requests' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'rejected', label: 'Rejected' }
+];
 
 export default function Leave() {
+  const location = useLocation();
+
+  const [leaveRequests, setLeaveRequests] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  const [statusFilter, setStatusFilter] = useState('');
+  const [search, setSearch] = useState('');
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [feedbackMessage, setFeedbackMessage] = useState(location.state?.message || null);
+  const [processingId, setProcessingId] = useState(null);
+
+  const fetchLeaveRequests = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString()
+      });
+      if (statusFilter) params.append('status', statusFilter);
+      if (search.trim()) params.append('search', search.trim());
+
+      const res = await apiRequest(`/api/leave-requests?${params.toString()}`);
+      setLeaveRequests(res.data || []);
+      setTotal(res.meta?.total || 0);
+    } catch (err) {
+      setError(err.message || 'Failed to load leave requests.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, limit, statusFilter, search]);
+
+  useEffect(() => {
+    fetchLeaveRequests();
+  }, [fetchLeaveRequests]);
+
+  useEffect(() => {
+    if (feedbackMessage) {
+      const timer = setTimeout(() => setFeedbackMessage(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [feedbackMessage]);
+
+  async function handleAction(id, nextStatus) {
+    const reviewNote = window.prompt(`Optional review note for ${nextStatus}:`);
+    if (reviewNote === null) return; // User cancelled prompt
+
+    setProcessingId(id);
+    setError(null);
+    try {
+      await apiRequest(`/api/leave-requests/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          status: nextStatus,
+          reviewNote: reviewNote.trim() || null
+        })
+      });
+      setFeedbackMessage(`Leave request #${id} marked as ${nextStatus}.`);
+      fetchLeaveRequests();
+    } catch (err) {
+      setError(err.message || `Failed to update status to ${nextStatus}.`);
+    } finally {
+      setProcessingId(null);
+    }
+  }
+
+  function handleSearchSubmit(e) {
+    e.preventDefault();
+    setPage(1);
+    fetchLeaveRequests();
+  }
+
   return (
     <div className="page-container">
       <div className="page-header">
         <div>
           <h1 className="page-title">Leave Requests</h1>
-          <p className="page-subtitle">Track and review employee leave</p>
+          <p className="page-subtitle">Track, review, and manage absence requests</p>
+        </div>
+        <Link to="/leave/new" className="btn btn-primary">
+          + Submit Leave Request
+        </Link>
+      </div>
+
+      {feedbackMessage && (
+        <div className="alert-banner alert-success" role="status">
+          <span>✓ {feedbackMessage}</span>
+          <button
+            type="button"
+            className="alert-close"
+            onClick={() => setFeedbackMessage(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {error && <ErrorBanner message={error} onRetry={fetchLeaveRequests} />}
+
+      {/* Tabs & Search Filter Card */}
+      <div className="card filter-card">
+        <div className="filter-tabs-row">
+          <div className="status-tabs">
+            {STATUS_TABS.map((tab) => (
+              <button
+                key={tab.value}
+                type="button"
+                className={`tab-btn ${statusFilter === tab.value ? 'active' : ''}`}
+                onClick={() => {
+                  setStatusFilter(tab.value);
+                  setPage(1);
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSearchSubmit} className="search-form-inline">
+            <input
+              type="text"
+              className="form-input search-input"
+              placeholder="Search by employee name or code..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => {
+                  setSearch('');
+                  setPage(1);
+                }}
+              >
+                Clear
+              </button>
+            )}
+          </form>
         </div>
       </div>
-      <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
-        <p style={{ color: 'var(--color-text-muted)' }}>
-          Leave request management will be enabled in Phase 7.
-        </p>
+
+      {/* Table & states */}
+      <div className="card">
+        {isLoading ? (
+          <LoadingMessage message="Loading leave requests..." />
+        ) : leaveRequests.length === 0 ? (
+          <EmptyState
+            message="No leave requests found for the selected criteria."
+            action={
+              <Link to="/leave/new" className="btn btn-sm btn-primary">
+                Submit a Request
+              </Link>
+            }
+          />
+        ) : (
+          <>
+            <LeaveTable
+              leaveRequests={leaveRequests}
+              onAction={handleAction}
+              processingId={processingId}
+            />
+            <Pagination
+              page={page}
+              limit={limit}
+              total={total}
+              onPageChange={(newPage) => setPage(newPage)}
+            />
+          </>
+        )}
       </div>
     </div>
   );
