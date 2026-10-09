@@ -127,6 +127,16 @@ describe('Employees API', () => {
     assert.equal(res.body.data[0].employeeCode, testCode);
   });
 
+  it('GET /api/employees returns empty list when search matches nothing', async () => {
+    const res = await request(app)
+      .get('/api/employees?search=nonexistent_zzzzzz')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    assert.equal(res.status, 200);
+    assert.equal(res.body.data.length, 0);
+    assert.equal(res.body.meta.total, 0);
+  });
+
   it('GET /api/employees/:id returns single employee', async () => {
     const res = await request(app)
       .get(`/api/employees/${createdEmployeeId}`)

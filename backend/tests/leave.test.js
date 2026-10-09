@@ -134,6 +134,17 @@ describe('Leave Requests API', () => {
     assert.equal(found.status, 'pending');
   });
 
+  it('GET /api/leave-requests forces employee isolation even if query specifies another employeeId', async () => {
+    const res = await request(app)
+      .get('/api/leave-requests?employeeId=999999')
+      .set('Authorization', `Bearer ${employeeToken}`);
+    assert.equal(res.status, 200);
+    // Should still return records belonging to test employee (employeeId), not 999999
+    const found = res.body.data.find((item) => item.id === leaveId);
+    assert.ok(found);
+    assert.equal(found.employeeId, employeeId);
+  });
+
   it('PATCH /api/leave-requests/:id/status forbids non-admin from approving', async () => {
     const res = await request(app)
       .patch(`/api/leave-requests/${leaveId}/status`)
