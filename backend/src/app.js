@@ -5,6 +5,7 @@ import { config } from './config/env.js';
 import pool from './db/pool.js';
 import employeeRoutes from './routes/employeeRoutes.js';
 import leaveRoutes from './routes/leaveRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 import { notFound } from './middleware/notFound.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -29,6 +30,7 @@ app.get('/api/health', async (req, res) => {
 // Module routes
 app.use('/api/employees', employeeRoutes);
 app.use('/api/leave-requests', leaveRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // 404 & Central Error Handler
 app.use(notFound);
