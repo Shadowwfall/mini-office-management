@@ -2,10 +2,15 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import app from '../src/app.js';
+import { getAdminToken } from './helpers.js';
 
 describe('Dashboard Stats API', () => {
   it('GET /api/dashboard/stats returns correct shape with numeric counts', async () => {
-    const res = await request(app).get('/api/dashboard/stats');
+    const adminToken = getAdminToken();
+    const res = await request(app)
+      .get('/api/dashboard/stats')
+      .set('Authorization', `Bearer ${adminToken}`);
+
     assert.equal(res.status, 200);
     assert.ok(res.body.data);
 

@@ -12,8 +12,13 @@ export function errorHandler(err, req, res, next) {
 
   // Foreign key restriction violation (e.g. deleting employee with leave records)
   if (err.code === '23503' || err.code === '23001') {
-    return res.status(409).json({
-      error: { message: 'This employee has leave records. Mark them inactive instead.' }
+    if (err.constraint === 'leave_requests_employee_id_fkey' || (err.detail && err.detail.includes('leave_requests'))) {
+      return res.status(409).json({
+        error: { message: 'This employee has leave records. Mark them inactive instead.' }
+      });
+    }
+    return res.status(400).json({
+      error: { message: 'Referenced record does not exist or violates constraint.' }
     });
   }
 

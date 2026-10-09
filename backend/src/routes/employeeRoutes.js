@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as employeeController from '../controllers/employeeController.js';
 import { validate } from '../middleware/validate.js';
+import { verifyToken, requireRole } from '../middleware/auth.js';
 import {
   createEmployeeSchema,
   updateEmployeeSchema,
@@ -9,6 +10,9 @@ import {
 } from '../validation/employeeSchemas.js';
 
 const router = Router();
+
+// Protect all employee endpoints: Admin only
+router.use(verifyToken, requireRole('admin'));
 
 router.get(
   '/',

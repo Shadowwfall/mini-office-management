@@ -3,9 +3,11 @@ import assert from 'node:assert/strict';
 import request from 'supertest';
 import app from '../src/app.js';
 import pool from '../src/db/pool.js';
+import { getAdminToken } from './helpers.js';
 
 describe('Employees API', () => {
   let createdEmployeeId;
+  const adminToken = getAdminToken();
   const rand = Math.floor(100000 + Math.random() * 900000);
   const testCode = `EMP-${rand}`;
   const testEmail = `test_${rand}@example.com`;
@@ -32,7 +34,11 @@ describe('Employees API', () => {
       status: 'active'
     };
 
-    const res = await request(app).post('/api/employees').send(payload);
+    const res = await request(app)
+      .post('/api/employees')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(payload);
+
     assert.equal(res.status, 201);
     assert.ok(res.body.data);
     assert.equal(res.body.data.employeeCode, testCode);
@@ -55,7 +61,11 @@ describe('Employees API', () => {
       joiningDate: '2024-02-01'
     };
 
-    const res = await request(app).post('/api/employees').send(payload);
+    const res = await request(app)
+      .post('/api/employees')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(payload);
+
     assert.equal(res.status, 409);
     assert.ok(res.body.error);
     assert.match(res.body.error.message, /already exists/i);
@@ -71,16 +81,23 @@ describe('Employees API', () => {
       joiningDate: '2024-03-01'
     };
 
-    const res = await request(app).post('/api/employees').send(payload);
+    const res = await request(app)
+      .post('/api/employees')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(payload);
+
     assert.equal(res.status, 409);
     assert.ok(res.body.error);
     assert.match(res.body.error.message, /already exists/i);
   });
 
   it('POST /api/employees returns 400 on invalid body / missing fields', async () => {
-    const res = await request(app).post('/api/employees').send({
-      fullName: ''
-    });
+    const res = await request(app)
+      .post('/api/employees')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        fullName: ''
+      });
 
     assert.equal(res.status, 400);
     assert.equal(res.body.error.message, 'Validation failed');
@@ -88,7 +105,10 @@ describe('Employees API', () => {
   });
 
   it('GET /api/employees lists employees and meta', async () => {
-    const res = await request(app).get('/api/employees?page=1&limit=10');
+    const res = await request(app)
+      .get('/api/employees?page=1&limit=10')
+      .set('Authorization', `Bearer ${adminToken}`);
+
     assert.equal(res.status, 200);
     assert.ok(Array.isArray(res.body.data));
     assert.ok(res.body.meta);
@@ -98,28 +118,38 @@ describe('Employees API', () => {
   });
 
   it('GET /api/employees searches by code and filters by department', async () => {
-    const res = await request(app).get(
-      `/api/employees?search=${testCode}&department=Engineering&status=active`
-    );
+    const res = await request(app)
+      .get(`/api/employees?search=${testCode}&department=Engineering&status=active`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
     assert.equal(res.status, 200);
     assert.equal(res.body.data.length, 1);
     assert.equal(res.body.data[0].employeeCode, testCode);
   });
 
   it('GET /api/employees/:id returns single employee', async () => {
-    const res = await request(app).get(`/api/employees/${createdEmployeeId}`);
+    const res = await request(app)
+      .get(`/api/employees/${createdEmployeeId}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
     assert.equal(res.status, 200);
     assert.equal(res.body.data.id, createdEmployeeId);
     assert.equal(res.body.data.fullName, 'Alice Test');
   });
 
   it('GET /api/employees/999999 returns 404', async () => {
-    const res = await request(app).get('/api/employees/999999');
+    const res = await request(app)
+      .get('/api/employees/999999')
+      .set('Authorization', `Bearer ${adminToken}`);
+
     assert.equal(res.status, 404);
   });
 
   it('GET /api/employees/abc returns 400 for non-numeric ID', async () => {
-    const res = await request(app).get('/api/employees/abc');
+    const res = await request(app)
+      .get('/api/employees/abc')
+      .set('Authorization', `Bearer ${adminToken}`);
+
     assert.equal(res.status, 400);
   });
 
@@ -137,17 +167,25 @@ describe('Employees API', () => {
 
     const res = await request(app)
       .put(`/api/employees/${createdEmployeeId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send(payload);
+
     assert.equal(res.status, 200);
     assert.equal(res.body.data.fullName, 'Alice Updated');
     assert.equal(res.body.data.designation, 'Lead Engineer');
   });
 
   it('DELETE /api/employees/:id deletes employee without leave records', async () => {
-    const res = await request(app).delete(`/api/employees/${createdEmployeeId}`);
+    const res = await request(app)
+      .delete(`/api/employees/${createdEmployeeId}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
     assert.equal(res.status, 204);
 
-    const getRes = await request(app).get(`/api/employees/${createdEmployeeId}`);
+    const getRes = await request(app)
+      .get(`/api/employees/${createdEmployeeId}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
     assert.equal(getRes.status, 404);
     createdEmployeeId = null;
   });

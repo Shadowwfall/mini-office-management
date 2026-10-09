@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { apiRequest } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import LeaveTable from '../components/LeaveTable';
 import Pagination from '../components/Pagination';
 import LoadingMessage from '../components/LoadingMessage';
@@ -16,6 +17,8 @@ const STATUS_TABS = [
 
 export default function Leave() {
   const location = useLocation();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
 
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [total, setTotal] = useState(0);
@@ -95,8 +98,12 @@ export default function Leave() {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Leave Requests</h1>
-          <p className="page-subtitle">Track, review, and manage absence requests</p>
+          <h1 className="page-title">{isAdmin ? 'Leave Requests' : 'My Leave Requests'}</h1>
+          <p className="page-subtitle">
+            {isAdmin
+              ? 'Track, review, and manage absence requests'
+              : 'View and track the status of your submitted leaves'}
+          </p>
         </div>
         <Link to="/leave/new" className="btn btn-primary">
           + Submit Leave Request
@@ -180,6 +187,7 @@ export default function Leave() {
               leaveRequests={leaveRequests}
               onAction={handleAction}
               processingId={processingId}
+              isAdmin={isAdmin}
             />
             <Pagination
               page={page}

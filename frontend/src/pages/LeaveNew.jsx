@@ -2,18 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiRequest } from '../api/client';
 import { LEAVE_TYPES } from '../constants';
+import { useAuth } from '../context/AuthContext';
 import ErrorBanner from '../components/ErrorBanner';
 import LoadingMessage from '../components/LoadingMessage';
 
 export default function LeaveNew() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isEmployee = user?.role === 'employee';
 
   const [employees, setEmployees] = useState([]);
-  const [loadingEmployees, setLoadingEmployees] = useState(true);
+  const [loadingEmployees, setLoadingEmployees] = useState(!isEmployee);
 
   const today = new Date().toISOString().split('T')[0];
   const [formData, setFormData] = useState({
-    employeeId: '',
+    employeeId: isEmployee && user?.employeeId ? user.employeeId.toString() : '',
     leaveType: LEAVE_TYPES[0].value,
     startDate: today,
     endDate: today,
@@ -25,6 +28,13 @@ export default function LeaveNew() {
   const [serverError, setServerError] = useState(null);
 
   useEffect(() => {
+    if (isEmployee) {
+      if (user?.employeeId) {
+        setFormData((prev) => ({ ...prev, employeeId: user.employeeId.toString() }));
+      }
+      return;
+    }
+
     async function loadEmployees() {
       setLoadingEmployees(true);
       try {
@@ -41,12 +51,12 @@ export default function LeaveNew() {
       }
     }
     loadEmployees();
-  }, []);
+  }, [isEmployee, user]);
 
   function validate() {
     const newErrors = {};
 
-    if (!formData.employeeId) {
+    if (!isEmployee && !formData.employeeId) {
       newErrors.employeeId = 'Please select an employee.';
     }
 
@@ -93,7 +103,7 @@ export default function LeaveNew() {
       await apiRequest('/api/leave-requests', {
         method: 'POST',
         body: JSON.stringify({
-          employeeId: Number(formData.employeeId),
+          employeeId: isEmployee ? user.employeeId : Number(formData.employeeId),
           leaveType: formData.leaveType,
           startDate: formData.startDate,
           endDate: formData.endDate,
@@ -137,7 +147,19 @@ export default function LeaveNew() {
               <label htmlFor="employeeId" className="form-label">
                 Employee <span className="text-danger">*</span>
               </label>
-              {employees.length === 0 ? (
+              {isEmployee ? (
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    backgroundColor: 'var(--color-bg-secondary)',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--color-border)',
+                    fontSize: '0.875rem'
+                  }}
+                >
+                  <strong>{user?.email}</strong> (Your Account)
+                </div>
+              ) : employees.length === 0 ? (
                 <p className="text-subtle">
                   No employees available. Please create an employee first.
                 </p>
@@ -243,7 +265,7 @@ export default function LeaveNew() {
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={isSubmitting || employees.length === 0}
+              disabled={isSubmitting || (!isEmployee && employees.length === 0)}
             >
               {isSubmitting ? 'Submitting...' : 'Submit Request'}
             </button>

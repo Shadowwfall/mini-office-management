@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusBadge from './StatusBadge';
 
-export default function LeaveTable({ leaveRequests, onAction, processingId }) {
+export default function LeaveTable({ leaveRequests, onAction, processingId, isAdmin = false }) {
   if (!leaveRequests || leaveRequests.length === 0) {
     return null;
   }
@@ -65,28 +65,34 @@ export default function LeaveTable({ leaveRequests, onAction, processingId }) {
                   {req.submittedAt ? req.submittedAt.split('T')[0] : '-'}
                 </td>
                 <td className="text-right table-actions">
-                  {isPending ? (
-                    <>
-                      <button
-                        type="button"
-                        className="btn btn-xs btn-primary"
-                        disabled={isProcessing}
-                        onClick={() => onAction(req.id, 'approved')}
-                      >
-                        {isProcessing ? '...' : 'Approve'}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-xs btn-danger"
-                        disabled={isProcessing}
-                        onClick={() => onAction(req.id, 'rejected')}
-                      >
-                        {isProcessing ? '...' : 'Reject'}
-                      </button>
-                    </>
+                  {isAdmin ? (
+                    isPending ? (
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn-xs btn-primary"
+                          disabled={isProcessing}
+                          onClick={() => onAction(req.id, 'approved')}
+                        >
+                          {isProcessing ? '...' : 'Approve'}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-xs btn-danger"
+                          disabled={isProcessing}
+                          onClick={() => onAction(req.id, 'rejected')}
+                        >
+                          {isProcessing ? '...' : 'Reject'}
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-subtle" style={{ fontSize: '0.75rem' }}>
+                        Reviewed
+                      </span>
+                    )
                   ) : (
                     <span className="text-subtle" style={{ fontSize: '0.75rem' }}>
-                      Reviewed
+                      {isPending ? 'Pending Review' : 'Reviewed'}
                     </span>
                   )}
                 </td>

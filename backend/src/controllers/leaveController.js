@@ -6,9 +6,13 @@ export async function list(req, res, next) {
     const page = Number(query.page || 1);
     const limit = Number(query.limit || 20);
 
+    // If role is employee, force filtering only to their own records
+    const targetEmployeeId =
+      req.user.role === 'employee' ? req.user.employeeId : query.employeeId;
+
     const { leaveRequests, total } = await leaveQueries.listLeaveRequests({
       status: query.status,
-      employeeId: query.employeeId,
+      employeeId: targetEmployeeId,
       search: query.search,
       page,
       limit
@@ -29,10 +33,17 @@ export async function list(req, res, next) {
 
 export async function create(req, res, next) {
   try {
-    const result = await leaveQueries.createLeaveRequest(req.body);
+    const payload = { ...req.body };
+
+    // If employee submits, force their own employeeId from token
+    if (req.user.role === 'employee') {
+      payload.employeeId = req.user.employeeId;
+    }
+
+    const result = await leaveQueries.createLeaveRequest(payload);
     if (result.error === 'EMPLOYEE_NOT_FOUND') {
       return res.status(404).json({
-        error: { message: `Employee with ID ${req.body.employeeId} not found.` }
+        error: { message: `Employee with ID ${payload.employeeId} not found.` }
       });
     }
 
@@ -50,7 +61,7 @@ export async function updateStatus(req, res, next) {
     const result = await leaveQueries.updateLeaveStatus(id, {
       status,
       reviewNote,
-      reviewedBy: null // Will be populated from JWT token in Phase 9
+      reviewedBy: req.user.id
     });
 
     if (result.notFound) {
