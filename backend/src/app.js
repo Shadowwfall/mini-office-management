@@ -3,6 +3,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { config } from './config/env.js';
 import pool from './db/pool.js';
+import employeeRoutes from './routes/employeeRoutes.js';
+import { notFound } from './middleware/notFound.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
@@ -21,5 +24,12 @@ app.get('/api/health', async (req, res) => {
     res.status(503).json({ status: 'error', db: 'down' });
   }
 });
+
+// Module routes
+app.use('/api/employees', employeeRoutes);
+
+// 404 & Central Error Handler
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;
