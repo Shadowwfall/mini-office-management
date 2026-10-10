@@ -253,23 +253,22 @@ export default function Dashboard() {
                         const share = employees.total > 0
                           ? Math.round((dept.count / employees.total) * 100)
                           : 0;
-                        const relativePct = Math.round((dept.count / maxDeptCount) * 100);
 
                         return (
                           <div key={dept.department} className="dept-breakdown-row">
                             <div className="dept-info-col">
                               <span className="dept-name font-semibold">{dept.department}</span>
                               <div
-                                className="bar-track dept-track"
+                                className="dept-bar-track bar-track dept-track"
                                 role="progressbar"
-                                aria-label={`${dept.department} relative volume`}
-                                aria-valuenow={relativePct}
+                                aria-label={`${dept.department} share of workforce`}
+                                aria-valuenow={share}
                                 aria-valuemin="0"
                                 aria-valuemax="100"
                               >
                                 <div
-                                  className="bar-fill bar-primary"
-                                  style={{ width: `${relativePct}%` }}
+                                  className="dept-bar-fill bar-fill bar-primary"
+                                  style={{ width: `${share}%` }}
                                 />
                               </div>
                             </div>

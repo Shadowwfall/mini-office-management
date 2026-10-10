@@ -1032,12 +1032,32 @@ a {
   color: var(--color-text);
 }
 
-.dept-track {
+.dept-track,
+.dept-bar-track,
+.bar-track {
   width: 100%;
   height: 8px;
   background-color: var(--color-neutral-50);
   border-radius: var(--radius-full);
   overflow: hidden;
+}
+
+[data-theme="dark"] .dept-track,
+[data-theme="dark"] .dept-bar-track,
+[data-theme="dark"] .bar-track {
+  background-color: var(--color-border);
+}
+
+.dept-bar-fill,
+.bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dept-bar-fill,
+.bar-primary {
+  background-color: var(--color-primary-600);
 }
 
 .dept-stat-col {
