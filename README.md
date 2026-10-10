@@ -23,37 +23,47 @@ Built with a clean, unbloated technology stack: **React (Vite) + Express 5 + Pos
 
 | Layer | Technology | Rationale & Trade-offs |
 |---|---|---|
-| **Frontend** | React 19 + Vite | Fast dev server, instant HMR, lightweight SPA bundle (<300 kB). |
-| **Routing** | React Router v7 | Declarative nested routing with `<ProtectedRoute>` role gates and `<Navigate>`. |
-| **Styling** | Vanilla CSS | Bespoke design system using CSS custom properties (tokens), responsive cards, data tables, and badges without Tailwind or heavy UI component libraries. |
+| **Frontend** | React 19 + Vite | Fast dev server, instant HMR, lightweight SPA bundle (<100 kB gzipped). |
+| **Routing** | React Router v7 | Declarative nested routing with `<ProtectedRoute>` role gates, automatic role redirection (Admin → `/`, Employee → `/leave`), and `<Navigate>`. |
+| **Styling & Motion** | Vanilla CSS + transitions.dev | Bespoke design system using CSS custom properties (tokens), responsive cards, full Light/Dark mode with persistence, and rich micro-interactions (Sliding Tabs, Accordion Selects, Error Shake, 3D Card Tilt) with `prefers-reduced-motion` support. |
 | **Backend API** | Express 5 (Node.js) | Standard, minimal HTTP service with automatic async error propagation in Express 5. |
 | **Database** | PostgreSQL on Neon | Managed serverless Postgres with instant branching, pooling via PgBouncer, and strict relational integrity. |
 | **SQL Layer** | `pg` + Parameterized SQL | Direct control over queries without ORM abstraction overhead. Immune to SQL injection via `$1, $2` parameters. |
 | **Validation** | Zod | Declarative schema validation for request bodies, query params, and numeric URL IDs. |
 | **Authentication**| JWT + bcryptjs | Stateless Bearer token auth across separate Vercel and Render domains. |
-| **Testing** | Node.js Test Runner + Supertest | Zero extra framework dependencies; executes fast API integration tests against Postgres. |
+| **Testing** | Node.js Test Runner + Supertest | Zero extra framework dependencies; executes fast API integration tests (35 passing suites) against Postgres. |
 
 ---
 
 ## 📦 Features
 
 ### 1. Employee Management (Admin Only)
-- **Directory Table**: Paginated list with department badges and active/inactive status badges.
+- **Directory Table**: Paginated list with department badges, active/inactive status badges, and interactive search.
 - **Search & Filters**: Instant multi-condition filtering by partial employee code, name, email, department, and status.
-- **Create & Edit**: Validated forms checking required fields, phone regex, unique email (case-insensitive `lower(email)`), and employee code uniqueness.
+- **Create & Edit**: Validated forms checking required fields, phone regex, unique email (case-insensitive `lower(email)`), and employee code uniqueness. Powered by animated Accordion dropdown selectors.
 - **Safe Deletion**: Relational integrity (`ON DELETE RESTRICT`) prevents deleting employees who have leave history with an informative conflict error (`409 Conflict`).
 
 ### 2. Leave Request Management
-- **Self-Service Submission**: Employees submit leave requests with date range verification (`end_date >= start_date`), leave type (`annual`, `sick`, `casual`, `unpaid`), and reason.
+- **Self-Service Submission (Employees Only)**: Employees submit leave requests with date range verification (`end_date >= start_date`), leave type (`annual`, `sick`, `casual`, `unpaid`), and reason.
+- **Role Redirection & Protection**: Employees automatically land on `/leave` upon sign-in. Admins are restricted from submitting leave requests (403 forbidden) to maintain audit separation.
 - **Employee Isolation**: Non-admin users are strictly scoped on the server side to their own leave requests; employee ID query tampering is ignored.
-- **Atomic Review Workflow**: Admins approve or reject pending requests with an optional note. Transitions use atomic SQL guards (`WHERE id = $4 AND status = 'pending'`) to guarantee that double reviews return `409 Conflict`.
+- **Atomic Review Workflow**: Admins approve or reject pending requests with an optional note. Transitions use atomic SQL guards (`WHERE id = $4 AND status = 'pending'`) to guarantee that concurrent reviews return `409 Conflict`.
 
 ### 3. Executive Dashboard (Admin Only)
 - **Real-Time SQL Aggregations**:
-  - Total active employees
-  - Pending leave requests requiring attention
-  - Approved leaves currently ongoing today (`CURRENT_DATE BETWEEN start_date AND end_date`)
-  - Department headcount distribution visualized with proportional CSS bar charts.
+  - Total workforce headcount, active staff, and inactive staff.
+  - Pending leave requests requiring administrative attention.
+  - Complete leave pipeline status breakdown (approved, pending, rejected).
+  - Department headcount distribution visualized with proportional CSS bar indicators.
+- **Interactive 3D Motion**: Dashboard stat and section cards feature cursor-tracked 3D tilt with dynamic radial glare reflections.
+
+### 4. Theme & Micro-Interactions (transitions.dev)
+- **Light & Dark Mode**: Seamless theme toggle in navigation bar with system preference auto-detection and `localStorage` persistence.
+- **Sliding Tabs**: Smooth pill indicator tracking active tabs in leave management.
+- **Accordion Dropdown Selectors**: Department and Status dropdowns with animated height (`grid-template-rows: 0fr ↔ 1fr`), blur cross-fade, and 180° chevron flips.
+- **Error State Shake**: Multi-segment keyframe feedback animation on invalid form inputs.
+- **3D Card Hover Tilt**: Multi-curve spring physics, cursor following, and screen-blended light glare on dashboard surfaces.
+- **Accessibility**: Full OS `prefers-reduced-motion` compliance across all transitions.
 
 ---
 
@@ -102,7 +112,7 @@ All protected endpoints require `Authorization: Bearer <token>`.
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | `GET` | `/api/leave-requests` | Authenticated | List leave requests (admins view all, employees view only their own). |
-| `POST` | `/api/leave-requests` | Authenticated | Submit new leave request. |
+| `POST` | `/api/leave-requests` | Employee | Submit new leave request. |
 | `PATCH` | `/api/leave-requests/:id/status` | Admin | Approve or reject pending leave (`{ status: 'approved'\|'rejected', reviewNote }`). |
 
 ### Dashboard & Health
