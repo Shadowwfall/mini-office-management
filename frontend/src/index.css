@@ -7,7 +7,8 @@
   --color-border-subtle: #f1f5f9;
   --color-text: #0f172a;
   --color-text-secondary: #475569;
-  --color-text-muted: #64748b; /* WCAG AA contrast against light surface */
+  --color-text-muted: #64748b;
+  /* WCAG AA contrast against light surface */
   --color-text-subtle: #64748b;
 
   /* Primary Brand */
@@ -88,6 +89,16 @@
   --shake-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --revert-hold: 3000ms;
   --revert-dur: 280ms;
+
+  /* transitions.dev: Card hover tilt (3D tilt) motion tokens */
+  --tilt-perspective: 1000px;
+  --tilt-return: 1000ms;
+  --tilt-return-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tilt-follow: 400ms;
+  --tilt-follow-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tilt-glare-opacity: 0.32;
+  --tilt-glare-fade: 300ms;
+  --tilt-glare-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 [data-theme="dark"] {
@@ -623,6 +634,7 @@ a {
   color: var(--color-success-600);
   border: 1px solid rgba(5, 150, 105, 0.25);
 }
+
 .status-active::before,
 .status-approved::before {
   background-color: var(--color-success-600);
@@ -634,6 +646,7 @@ a {
   color: var(--color-danger-600);
   border: 1px solid rgba(220, 38, 38, 0.25);
 }
+
 .status-inactive::before,
 .status-rejected::before {
   background-color: var(--color-danger-600);
@@ -644,6 +657,7 @@ a {
   color: var(--color-warning-600);
   border: 1px solid rgba(217, 119, 6, 0.25);
 }
+
 .status-pending::before {
   background-color: var(--color-warning-600);
 }
@@ -755,11 +769,26 @@ a {
 }
 
 /* Utilities */
-.text-danger { color: var(--color-danger); }
-.text-subtle { color: var(--color-text-muted); font-size: 0.75rem; }
-.font-semibold { font-weight: 600; }
-.text-right { text-align: right; }
-.text-capitalize { text-transform: capitalize; }
+.text-danger {
+  color: var(--color-danger);
+}
+
+.text-subtle {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
 
 /* Filter Tabs & Search Inline */
 .filter-tabs-row {
@@ -850,8 +879,11 @@ a {
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+}
+
+.stat-card:not(.t-tilt-card):hover {
+  transform: translateY(-2px);
 }
 
 .stat-card--interactive {
@@ -1066,9 +1098,17 @@ a {
   border-bottom-right-radius: var(--radius-full);
 }
 
-.segment--success { background-color: var(--color-success-600); }
-.segment--warning { background-color: var(--color-warning-600); }
-.segment--danger  { background-color: var(--color-danger-600); }
+.segment--success {
+  background-color: var(--color-success-600);
+}
+
+.segment--warning {
+  background-color: var(--color-warning-600);
+}
+
+.segment--danger {
+  background-color: var(--color-danger-600);
+}
 
 /* Leave Status Legend */
 .leave-status-legend {
@@ -1129,12 +1169,10 @@ a {
 }
 
 .skeleton-line {
-  background: linear-gradient(
-    90deg,
-    var(--color-surface-hover) 25%,
-    var(--color-border) 50%,
-    var(--color-surface-hover) 75%
-  );
+  background: linear-gradient(90deg,
+      var(--color-surface-hover) 25%,
+      var(--color-border) 50%,
+      var(--color-surface-hover) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-sm);
@@ -1158,13 +1196,23 @@ a {
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spin {
@@ -1220,14 +1268,18 @@ a {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   transition:
     transform var(--tabs-dur) var(--tabs-ease),
-    width     var(--tabs-dur) var(--tabs-ease);
+    width var(--tabs-dur) var(--tabs-ease);
   will-change: transform, width;
   z-index: 0;
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .t-tabs-pill, .t-tab { transition: none !important; }
+
+  .t-tabs-pill,
+  .t-tab {
+    transition: none !important;
+  }
 }
 
 /* ==========================================================================
@@ -1318,7 +1370,10 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .t-acc-panel, .t-acc-panel-inner, .t-acc-chevron {
+
+  .t-acc-panel,
+  .t-acc-panel-inner,
+  .t-acc-chevron {
     transition: none !important;
   }
 }
@@ -1416,7 +1471,7 @@ a {
   opacity: 0;
   visibility: hidden;
   transition:
-    opacity    var(--revert-dur, 280ms) ease-out,
+    opacity var(--revert-dur, 280ms) ease-out,
     visibility 0s linear var(--revert-dur, 280ms);
 }
 
@@ -1424,29 +1479,120 @@ a {
   opacity: 1;
   visibility: visible;
   transition:
-    opacity    var(--revert-dur, 280ms) ease-out,
+    opacity var(--revert-dur, 280ms) ease-out,
     visibility 0s linear 0s;
 }
 
 .t-input.is-shaking {
-  animation: t-input-shake calc(
-      var(--shake-dur-a) * 2 + var(--shake-dur-b) * 2
-    ) linear;
+  animation: t-input-shake calc(var(--shake-dur-a) * 2 + var(--shake-dur-b) * 2) linear;
 }
 
 @keyframes t-input-shake {
-  0%      { transform: translateX(0);                                 animation-timing-function: var(--shake-ease); }
-  28.57%  { transform: translateX(var(--shake-distance));             animation-timing-function: var(--shake-ease); }
-  57.14%  { transform: translateX(calc(var(--shake-distance) * -1)); animation-timing-function: var(--shake-ease); }
-  78.57%  { transform: translateX(var(--shake-overshoot));            animation-timing-function: var(--shake-ease); }
-  100%    { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+    animation-timing-function: var(--shake-ease);
+  }
+
+  28.57% {
+    transform: translateX(var(--shake-distance));
+    animation-timing-function: var(--shake-ease);
+  }
+
+  57.14% {
+    transform: translateX(calc(var(--shake-distance) * -1));
+    animation-timing-function: var(--shake-ease);
+  }
+
+  78.57% {
+    transform: translateX(var(--shake-overshoot));
+    animation-timing-function: var(--shake-ease);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .t-input { animation: none !important; transform: none !important; }
+  .t-input {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
+/* ==========================================================================
+   transitions.dev: Card hover tilt (3D tilt) (.t-*)
+   Docs: https://transitions.dev/detail.html?t=card-tilt
+   ========================================================================== */
 
+/* The outer wrapper is the flat hit area; touch-action:none
+   lets a finger drag tilt the card instead of scrolling the
+   page, so tap-hold-drag works on mobile. */
+.t-tilt {
+  touch-action: none;
+  display: block;
+}
 
+/* The card tilts toward the pointer via rotateX/rotateY fed
+   from JS; on leave it eases back to flat. A separate
+   .is-tilting class swaps in a short linear follow while the
+   pointer moves so the tilt tracks the cursor 1:1. */
+.t-tilt-card {
+  position: relative;
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  transform:
+    perspective(var(--tilt-perspective)) rotateX(var(--tilt-rx, 0deg)) rotateY(var(--tilt-ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform var(--tilt-return) var(--tilt-return-ease), box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease;
+  will-change: transform;
+}
 
+.t-tilt-card.is-tilting {
+  transition: transform var(--tilt-follow) var(--tilt-follow-ease), box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease;
+}
 
+/* Cursor-tracked glare: layered soft circles that add like
+   light (screen blend) at the pointer position. */
+.t-tilt-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(circle 95px at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
+      rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.06) 52%, rgba(255, 255, 255, 0) 84%),
+    radial-gradient(circle 200px at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
+      rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.04) 58%, rgba(255, 255, 255, 0) 78%),
+    radial-gradient(circle 360px at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
+      rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0) 88%);
+  transition: opacity var(--tilt-glare-fade) var(--tilt-glare-ease);
+  border-radius: inherit;
+}
+
+.t-tilt.is-hover .t-tilt-glare {
+  opacity: var(--tilt-glare-opacity);
+}
+
+/* Layout helpers for dashboard grid integration */
+.stat-card-tilt-wrap,
+.dashboard-section-tilt-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.stat-card-tilt-wrap .t-tilt-card,
+.dashboard-section-tilt-wrap .t-tilt-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-tilt-card {
+    transform: none !important;
+    transition: none !important;
+  }
+}

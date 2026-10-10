@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import TiltCard from './TiltCard';
 
 /**
- * StatCard component with icon chip, neutral tabular numbers, and optional link
+ * StatCard component with 3D tilt hover, icon chip, neutral tabular numbers, and optional link
  */
 export default function StatCard({
   title,
@@ -11,7 +12,8 @@ export default function StatCard({
   iconVariant = 'primary',
   subtitle,
   to,
-  badge
+  badge,
+  maxTilt = 12
 }) {
   const inner = (
     <>
@@ -41,11 +43,27 @@ export default function StatCard({
 
   if (to) {
     return (
-      <Link to={to} className="stat-card stat-card--interactive" title={`View ${title}`}>
+      <TiltCard
+        as={Link}
+        to={to}
+        className="stat-card-tilt-wrap"
+        cardClassName="stat-card stat-card--interactive"
+        title={`View ${title}`}
+        maxTilt={maxTilt}
+      >
         {inner}
-      </Link>
+      </TiltCard>
     );
   }
 
-  return <div className="stat-card">{inner}</div>;
+  return (
+    <TiltCard
+      className="stat-card-tilt-wrap"
+      cardClassName="stat-card"
+      maxTilt={maxTilt}
+    >
+      {inner}
+    </TiltCard>
+  );
 }
+

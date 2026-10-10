@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client';
 import StatCard from '../components/StatCard';
+import TiltCard from '../components/TiltCard';
 import ErrorBanner from '../components/ErrorBanner';
 import EmptyState from '../components/EmptyState';
 
@@ -229,7 +230,7 @@ export default function Dashboard() {
           {/* Breakdown Sections */}
           <div className="dashboard-grid">
             {/* Department Breakdown Card */}
-            <div className="card dashboard-section">
+            <TiltCard maxTilt={6} className="dashboard-section-tilt-wrap" cardClassName="card dashboard-section">
               <div className="card-header card-header-split">
                 <div>
                   <h2 className="card-title">Employees by Department</h2>
@@ -295,10 +296,10 @@ export default function Dashboard() {
                   </>
                 )}
               </div>
-            </div>
+            </TiltCard>
 
             {/* Leave Requests Overview Card */}
-            <div className="card dashboard-section">
+            <TiltCard maxTilt={6} className="dashboard-section-tilt-wrap" cardClassName="card dashboard-section">
               <div className="card-header card-header-split">
                 <div>
                   <h2 className="card-title">Leave Requests Overview</h2>
@@ -400,7 +401,7 @@ export default function Dashboard() {
                   </>
                 )}
               </div>
-            </div>
+            </TiltCard>
           </div>
         </>
       )}
