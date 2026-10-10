@@ -21,6 +21,19 @@ describe('Authentication & Authorization API', () => {
     adminToken = res.body.data.token;
   });
 
+  it('POST /api/auth/login logs in employee with valid credentials', async () => {
+    const res = await request(app).post('/api/auth/login').send({
+      email: 'john.doe@example.com',
+      password: 'employee12345'
+    });
+
+    assert.equal(res.status, 200);
+    assert.ok(res.body.data.token);
+    assert.equal(res.body.data.user.email, 'john.doe@example.com');
+    assert.equal(res.body.data.user.role, 'employee');
+    assert.ok(res.body.data.user.employeeId);
+  });
+
   it('POST /api/auth/login returns 401 for incorrect password', async () => {
     const res = await request(app).post('/api/auth/login').send({
       email: 'admin@example.com',

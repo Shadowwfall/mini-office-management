@@ -9,11 +9,11 @@ describe('Employees API', () => {
   let createdEmployeeId;
   const adminToken = getAdminToken();
   const rand = Math.floor(100000 + Math.random() * 900000);
-  const testCode = `EMP-${rand}`;
+  const testCode = `EMP-TEST-${rand}`;
   const testEmail = `test_${rand}@example.com`;
 
   before(async () => {
-    await pool.query("DELETE FROM employees WHERE employee_code LIKE 'EMP-%'");
+    await pool.query("DELETE FROM employees WHERE employee_code LIKE 'EMP-TEST-%'");
   });
 
   after(async () => {

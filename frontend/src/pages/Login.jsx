@@ -47,7 +47,12 @@ export default function Login() {
           </p>
         </div>
 
-        {error && <ErrorBanner error={error} onDismiss={() => setError(null)} />}
+        {error && (
+          <ErrorBanner
+            message={error.message || 'Invalid email or password.'}
+            onDismiss={() => setError(null)}
+          />
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
