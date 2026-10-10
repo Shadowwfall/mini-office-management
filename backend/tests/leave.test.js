@@ -51,6 +51,20 @@ describe('Leave Requests API', () => {
     assert.equal(res.status, 401);
   });
 
+  it('POST /api/leave-requests rejects admin submission with 403', async () => {
+    const res = await request(app)
+      .post('/api/leave-requests')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        employeeId,
+        leaveType: 'annual',
+        startDate: '2025-06-01',
+        endDate: '2025-06-05',
+        reason: 'Admin trying to submit'
+      });
+    assert.equal(res.status, 403);
+  });
+
   it('POST /api/leave-requests submits a valid leave request', async () => {
     const payload = {
       employeeId,
@@ -62,7 +76,7 @@ describe('Leave Requests API', () => {
 
     const res = await request(app)
       .post('/api/leave-requests')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Authorization', `Bearer ${employeeToken}`)
       .send(payload);
     assert.equal(res.status, 201);
     assert.ok(res.body.data);
@@ -87,13 +101,14 @@ describe('Leave Requests API', () => {
 
     const res = await request(app)
       .post('/api/leave-requests')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Authorization', `Bearer ${employeeToken}`)
       .send(payload);
     assert.equal(res.status, 400);
     assert.equal(res.body.error.message, 'Validation failed');
   });
 
   it('POST /api/leave-requests returns 404 for nonexistent employee', async () => {
+    const nonexistentToken = getEmployeeToken(999999);
     const payload = {
       employeeId: 999999,
       leaveType: 'sick',
@@ -104,7 +119,7 @@ describe('Leave Requests API', () => {
 
     const res = await request(app)
       .post('/api/leave-requests')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Authorization', `Bearer ${nonexistentToken}`)
       .send(payload);
     assert.equal(res.status, 404);
     assert.match(res.body.error.message, /not found/i);

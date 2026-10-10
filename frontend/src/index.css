@@ -416,9 +416,12 @@ a {
 }
 
 .table-actions {
-  display: flex;
+  display: inline-flex;
   gap: 0.5rem;
   justify-content: flex-end;
+  align-items: center;
+  min-height: 28px;
+  vertical-align: middle;
 }
 
 /* Status Badges */

@@ -16,17 +16,10 @@ export default function ProtectedRoute({ children, requiredRole }) {
   }
 
   if (requiredRole && user.role !== requiredRole) {
-    return (
-      <div className="card" style={{ maxWidth: '600px', margin: '40px auto', textAlign: 'center' }}>
-        <h2 style={{ color: 'var(--color-danger)', marginBottom: '8px' }}>Access Denied</h2>
-        <p style={{ color: 'var(--color-text-secondary)', marginBottom: '20px' }}>
-          This page requires <strong>{requiredRole}</strong> privileges. You are currently logged in as <strong>{user.role}</strong>.
-        </p>
-        <a href={user.role === 'employee' ? '/leave' : '/'} className="btn btn-primary">
-          Return to {user.role === 'employee' ? 'My Leave Requests' : 'Dashboard'}
-        </a>
-      </div>
-    );
+    if (user.role === 'employee') {
+      return <Navigate to="/leave" replace />;
+    }
+    return <Navigate to="/" replace />;
   }
 
   return children;

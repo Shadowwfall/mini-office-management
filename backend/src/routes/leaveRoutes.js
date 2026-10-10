@@ -21,6 +21,7 @@ router.get(
 router.post(
   '/',
   verifyToken,
+  requireRole('employee'),
   validate(createLeaveSchema, 'body'),
   leaveController.create
 );

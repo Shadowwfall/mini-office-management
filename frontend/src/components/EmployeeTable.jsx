@@ -39,21 +39,23 @@ export default function EmployeeTable({ employees, onDelete, deletingId }) {
                 <StatusBadge status={emp.status} />
               </td>
               <td>{emp.joiningDate}</td>
-              <td className="text-right table-actions">
-                <Link
-                  to={`/employees/${emp.id}/edit`}
-                  className="btn btn-xs btn-outline"
-                >
-                  Edit
-                </Link>
-                <button
-                  type="button"
-                  className="btn btn-xs btn-danger"
-                  disabled={deletingId === emp.id}
-                  onClick={() => onDelete(emp)}
-                >
-                  {deletingId === emp.id ? 'Deleting...' : 'Delete'}
-                </button>
+              <td className="text-right">
+                <div className="table-actions">
+                  <Link
+                    to={`/employees/${emp.id}/edit`}
+                    className="btn btn-xs btn-outline"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    type="button"
+                    className="btn btn-xs btn-danger"
+                    disabled={deletingId === emp.id}
+                    onClick={() => onDelete(emp)}
+                  >
+                    {deletingId === emp.id ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
               </td>
             </tr>
           ))}

@@ -68,7 +68,7 @@ export default function App() {
               <Route
                 path="/leave/new"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="employee">
                     <LeaveNew />
                   </ProtectedRoute>
                 }

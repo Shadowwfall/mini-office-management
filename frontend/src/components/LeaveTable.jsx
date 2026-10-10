@@ -64,37 +64,39 @@ export default function LeaveTable({ leaveRequests, onAction, processingId, isAd
                 <td className="text-subtle">
                   {req.submittedAt ? req.submittedAt.split('T')[0] : '-'}
                 </td>
-                <td className="text-right table-actions">
-                  {isAdmin ? (
-                    isPending ? (
-                      <>
-                        <button
-                          type="button"
-                          className="btn btn-xs btn-primary"
-                          disabled={isProcessing}
-                          onClick={() => onAction(req.id, 'approved')}
-                        >
-                          {isProcessing ? '...' : 'Approve'}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-xs btn-danger"
-                          disabled={isProcessing}
-                          onClick={() => onAction(req.id, 'rejected')}
-                        >
-                          {isProcessing ? '...' : 'Reject'}
-                        </button>
-                      </>
+                <td className="text-right">
+                  <div className="table-actions">
+                    {isAdmin ? (
+                      isPending ? (
+                        <>
+                          <button
+                            type="button"
+                            className="btn btn-xs btn-primary"
+                            disabled={isProcessing}
+                            onClick={() => onAction(req.id, 'approved')}
+                          >
+                            {isProcessing ? '...' : 'Approve'}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-xs btn-danger"
+                            disabled={isProcessing}
+                            onClick={() => onAction(req.id, 'rejected')}
+                          >
+                            {isProcessing ? '...' : 'Reject'}
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-subtle" style={{ fontSize: '0.8125rem' }}>
+                          —
+                        </span>
+                      )
                     ) : (
-                      <span className="text-subtle" style={{ fontSize: '0.75rem' }}>
-                        Reviewed
+                      <span className="text-subtle" style={{ fontSize: '0.8125rem' }}>
+                        {isPending ? 'Pending Review' : '—'}
                       </span>
-                    )
-                  ) : (
-                    <span className="text-subtle" style={{ fontSize: '0.75rem' }}>
-                      {isPending ? 'Pending Review' : 'Reviewed'}
-                    </span>
-                  )}
+                    )}
+                  </div>
                 </td>
               </tr>
             );

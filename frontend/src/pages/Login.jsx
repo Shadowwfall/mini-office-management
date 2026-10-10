@@ -20,10 +20,11 @@ export default function Login() {
 
     try {
       const loggedUser = await login(email, password);
-      const destination =
-        location.state?.from?.pathname ||
-        (loggedUser.role === 'employee' ? '/leave' : '/');
-      navigate(destination, { replace: true });
+      if (loggedUser.role === 'admin') {
+        navigate('/', { replace: true });
+      } else {
+        navigate('/leave', { replace: true });
+      }
     } catch (err) {
       setError(err);
     } finally {

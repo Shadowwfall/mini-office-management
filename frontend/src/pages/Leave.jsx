@@ -105,9 +105,11 @@ export default function Leave() {
               : 'View and track the status of your submitted leaves'}
           </p>
         </div>
-        <Link to="/leave/new" className="btn btn-primary">
-          + Submit Leave Request
-        </Link>
+        {!isAdmin && (
+          <Link to="/leave/new" className="btn btn-primary">
+            + Submit Leave Request
+          </Link>
+        )}
       </div>
 
       {feedbackMessage && (
@@ -176,9 +178,11 @@ export default function Leave() {
           <EmptyState
             message="No leave requests found for the selected criteria."
             action={
-              <Link to="/leave/new" className="btn btn-sm btn-primary">
-                Submit a Request
-              </Link>
+              !isAdmin ? (
+                <Link to="/leave/new" className="btn btn-sm btn-primary">
+                  Submit a Request
+                </Link>
+              ) : null
             }
           />
         ) : (
