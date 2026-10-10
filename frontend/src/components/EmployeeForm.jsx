@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DEPARTMENTS, EMPLOYEE_STATUSES } from '../constants';
+import { useErrorShake } from '../hooks/useErrorShake';
 
 export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting, title }) {
   const navigate = useNavigate();
+  const { shakingFields, triggerShake, clearShake } = useErrorShake();
 
   const [formData, setFormData] = useState({
     employeeCode: initialData.employeeCode || '',
@@ -49,7 +51,13 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+
+    const errorKeys = Object.keys(newErrors);
+    if (errorKeys.length > 0) {
+      triggerShake(errorKeys);
+      return false;
+    }
+    return true;
   }
 
   function handleChange(e) {
@@ -57,6 +65,7 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
+      clearShake(name);
     }
   }
 
@@ -73,7 +82,8 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
       </div>
       <form onSubmit={handleSubmit} className="form-body" noValidate>
         <div className="form-grid">
-          <div className="form-group">
+          {/* Employee Code */}
+          <div className={`form-group t-input-wrap ${errors.employeeCode ? 'is-error' : ''}`}>
             <label htmlFor="employeeCode" className="form-label">
               Employee Code <span className="text-danger">*</span>
             </label>
@@ -81,18 +91,19 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
               id="employeeCode"
               name="employeeCode"
               type="text"
-              className={`form-input ${errors.employeeCode ? 'is-invalid' : ''}`}
+              className={`form-input t-input ${errors.employeeCode ? 'is-invalid is-error' : ''} ${shakingFields.employeeCode ? 'is-shaking' : ''}`}
               placeholder="e.g. EMP-001"
               value={formData.employeeCode}
               onChange={handleChange}
               disabled={isSubmitting}
             />
             {errors.employeeCode && (
-              <p className="form-error">{errors.employeeCode}</p>
+              <p className="form-error t-error-msg">{errors.employeeCode}</p>
             )}
           </div>
 
-          <div className="form-group">
+          {/* Full Name */}
+          <div className={`form-group t-input-wrap ${errors.fullName ? 'is-error' : ''}`}>
             <label htmlFor="fullName" className="form-label">
               Full Name <span className="text-danger">*</span>
             </label>
@@ -100,18 +111,19 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
               id="fullName"
               name="fullName"
               type="text"
-              className={`form-input ${errors.fullName ? 'is-invalid' : ''}`}
+              className={`form-input t-input ${errors.fullName ? 'is-invalid is-error' : ''} ${shakingFields.fullName ? 'is-shaking' : ''}`}
               placeholder="e.g. John Doe"
               value={formData.fullName}
               onChange={handleChange}
               disabled={isSubmitting}
             />
             {errors.fullName && (
-              <p className="form-error">{errors.fullName}</p>
+              <p className="form-error t-error-msg">{errors.fullName}</p>
             )}
           </div>
 
-          <div className="form-group">
+          {/* Email */}
+          <div className={`form-group t-input-wrap ${errors.email ? 'is-error' : ''}`}>
             <label htmlFor="email" className="form-label">
               Work Email <span className="text-danger">*</span>
             </label>
@@ -119,18 +131,19 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
               id="email"
               name="email"
               type="email"
-              className={`form-input ${errors.email ? 'is-invalid' : ''}`}
+              className={`form-input t-input ${errors.email ? 'is-invalid is-error' : ''} ${shakingFields.email ? 'is-shaking' : ''}`}
               placeholder="e.g. john@company.com"
               value={formData.email}
               onChange={handleChange}
               disabled={isSubmitting}
             />
             {errors.email && (
-              <p className="form-error">{errors.email}</p>
+              <p className="form-error t-error-msg">{errors.email}</p>
             )}
           </div>
 
-          <div className="form-group">
+          {/* Phone */}
+          <div className="form-group t-input-wrap">
             <label htmlFor="phone" className="form-label">
               Phone Number
             </label>
@@ -138,7 +151,7 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
               id="phone"
               name="phone"
               type="tel"
-              className="form-input"
+              className="form-input t-input"
               placeholder="e.g. +1 555-0199"
               value={formData.phone}
               onChange={handleChange}
@@ -146,14 +159,15 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
             />
           </div>
 
-          <div className="form-group">
+          {/* Department */}
+          <div className={`form-group t-input-wrap ${errors.department ? 'is-error' : ''}`}>
             <label htmlFor="department" className="form-label">
               Department <span className="text-danger">*</span>
             </label>
             <select
               id="department"
               name="department"
-              className={`form-select ${errors.department ? 'is-invalid' : ''}`}
+              className={`form-select t-input ${errors.department ? 'is-invalid is-error' : ''} ${shakingFields.department ? 'is-shaking' : ''}`}
               value={formData.department}
               onChange={handleChange}
               disabled={isSubmitting}
@@ -165,11 +179,12 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
               ))}
             </select>
             {errors.department && (
-              <p className="form-error">{errors.department}</p>
+              <p className="form-error t-error-msg">{errors.department}</p>
             )}
           </div>
 
-          <div className="form-group">
+          {/* Designation */}
+          <div className={`form-group t-input-wrap ${errors.designation ? 'is-error' : ''}`}>
             <label htmlFor="designation" className="form-label">
               Designation <span className="text-danger">*</span>
             </label>
@@ -177,18 +192,19 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
               id="designation"
               name="designation"
               type="text"
-              className={`form-input ${errors.designation ? 'is-invalid' : ''}`}
+              className={`form-input t-input ${errors.designation ? 'is-invalid is-error' : ''} ${shakingFields.designation ? 'is-shaking' : ''}`}
               placeholder="e.g. Senior Software Engineer"
               value={formData.designation}
               onChange={handleChange}
               disabled={isSubmitting}
             />
             {errors.designation && (
-              <p className="form-error">{errors.designation}</p>
+              <p className="form-error t-error-msg">{errors.designation}</p>
             )}
           </div>
 
-          <div className="form-group">
+          {/* Joining Date */}
+          <div className={`form-group t-input-wrap ${errors.joiningDate ? 'is-error' : ''}`}>
             <label htmlFor="joiningDate" className="form-label">
               Joining Date <span className="text-danger">*</span>
             </label>
@@ -196,24 +212,25 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
               id="joiningDate"
               name="joiningDate"
               type="date"
-              className={`form-input ${errors.joiningDate ? 'is-invalid' : ''}`}
+              className={`form-input t-input ${errors.joiningDate ? 'is-invalid is-error' : ''} ${shakingFields.joiningDate ? 'is-shaking' : ''}`}
               value={formData.joiningDate}
               onChange={handleChange}
               disabled={isSubmitting}
             />
             {errors.joiningDate && (
-              <p className="form-error">{errors.joiningDate}</p>
+              <p className="form-error t-error-msg">{errors.joiningDate}</p>
             )}
           </div>
 
-          <div className="form-group">
+          {/* Status */}
+          <div className="form-group t-input-wrap">
             <label htmlFor="status" className="form-label">
               Status <span className="text-danger">*</span>
             </label>
             <select
               id="status"
               name="status"
-              className="form-select"
+              className="form-select t-input"
               value={formData.status}
               onChange={handleChange}
               disabled={isSubmitting}

@@ -7,6 +7,7 @@ import Pagination from '../components/Pagination';
 import LoadingMessage from '../components/LoadingMessage';
 import ErrorBanner from '../components/ErrorBanner';
 import EmptyState from '../components/EmptyState';
+import SlidingTabs from '../components/SlidingTabs';
 
 const STATUS_TABS = [
   { value: '', label: 'All Requests' },
@@ -130,21 +131,14 @@ export default function Leave() {
       {/* Tabs & Search Filter Card */}
       <div className="card filter-card">
         <div className="filter-tabs-row">
-          <div className="status-tabs">
-            {STATUS_TABS.map((tab) => (
-              <button
-                key={tab.value}
-                type="button"
-                className={`tab-btn ${statusFilter === tab.value ? 'active' : ''}`}
-                onClick={() => {
-                  setStatusFilter(tab.value);
-                  setPage(1);
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <SlidingTabs
+            tabs={STATUS_TABS}
+            value={statusFilter}
+            onChange={(val) => {
+              setStatusFilter(val);
+              setPage(1);
+            }}
+          />
 
           <form onSubmit={handleSearchSubmit} className="search-form-inline">
             <input

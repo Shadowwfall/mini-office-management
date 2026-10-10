@@ -2,20 +2,35 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ErrorBanner from '../components/ErrorBanner';
+import Accordion from '../components/Accordion';
+import { useErrorShake } from '../hooks/useErrorShake';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { shakingFields, triggerShake, clearShake } = useErrorShake();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
+
+    const errors = {};
+    if (!email.trim()) errors.email = 'Email address is required.';
+    if (!password.trim()) errors.password = 'Password is required.';
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      triggerShake(Object.keys(errors));
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -27,6 +42,7 @@ export default function Login() {
       }
     } catch (err) {
       setError(err);
+      triggerShake(['email', 'password']);
     } finally {
       setSubmitting(false);
     }
@@ -35,6 +51,9 @@ export default function Login() {
   function fillDemo(demoEmail, demoPassword) {
     setEmail(demoEmail);
     setPassword(demoPassword);
+    setFieldErrors({});
+    clearShake('email');
+    clearShake('password');
     setError(null);
   }
 
@@ -55,32 +74,48 @@ export default function Login() {
           />
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
+        <form onSubmit={handleSubmit} noValidate>
+          <div className={`form-group t-input-wrap ${fieldErrors.email || (error && !fieldErrors.email) ? 'is-error' : ''}`}>
             <label className="form-label" htmlFor="login-email">Email Address</label>
             <input
               id="login-email"
               type="email"
-              className="form-input"
+              className={`form-input t-input ${fieldErrors.email || error ? 'is-invalid is-error' : ''} ${shakingFields.email ? 'is-shaking' : ''}`}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: null }));
+                clearShake('email');
+                if (error) setError(null);
+              }}
               placeholder="name@example.com"
               required
               autoFocus
             />
+            {fieldErrors.email && (
+              <p className="form-error t-error-msg">{fieldErrors.email}</p>
+            )}
           </div>
 
-          <div className="form-group">
+          <div className={`form-group t-input-wrap ${fieldErrors.password || (error && !fieldErrors.password) ? 'is-error' : ''}`}>
             <label className="form-label" htmlFor="login-password">Password</label>
             <input
               id="login-password"
               type="password"
-              className="form-input"
+              className={`form-input t-input ${fieldErrors.password || error ? 'is-invalid is-error' : ''} ${shakingFields.password ? 'is-shaking' : ''}`}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: null }));
+                clearShake('password');
+                if (error) setError(null);
+              }}
               placeholder="Enter your password"
               required
             />
+            {fieldErrors.password && (
+              <p className="form-error t-error-msg">{fieldErrors.password}</p>
+            )}
           </div>
 
           <div style={{ marginTop: '24px' }}>
@@ -95,35 +130,30 @@ export default function Login() {
           </div>
         </form>
 
-        <div
-          style={{
-            marginTop: '28px',
-            paddingTop: '20px',
-            borderTop: '1px solid var(--color-border)',
-            fontSize: '0.8125rem'
-          }}
-        >
-          <div style={{ fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
-            Demo Accounts (Pre-seeded):
-          </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ fontSize: '0.75rem', padding: '4px 10px' }}
-              onClick={() => fillDemo('admin@example.com', 'admin12345')}
-            >
-              Admin Demo
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ fontSize: '0.75rem', padding: '4px 10px' }}
-              onClick={() => fillDemo('john.doe@example.com', 'employee12345')}
-            >
-              Employee Demo
-            </button>
-          </div>
+        <div style={{ marginTop: '24px' }}>
+          <Accordion title="Demo Accounts (Pre-seeded)" defaultOpen={true}>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem', marginBottom: '10px' }}>
+              Click an account below to auto-fill credentials for quick testing:
+            </p>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ fontSize: '0.75rem', padding: '5px 12px' }}
+                onClick={() => fillDemo('admin@example.com', 'admin12345')}
+              >
+                Admin Demo
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ fontSize: '0.75rem', padding: '5px 12px' }}
+                onClick={() => fillDemo('john.doe@example.com', 'employee12345')}
+              >
+                Employee Demo
+              </button>
+            </div>
+          </Accordion>
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import Pagination from '../components/Pagination';
 import LoadingMessage from '../components/LoadingMessage';
 import ErrorBanner from '../components/ErrorBanner';
 import EmptyState from '../components/EmptyState';
+import AccordionSelect from '../components/AccordionSelect';
 
 export default function Employees() {
   const location = useLocation();
@@ -19,6 +20,16 @@ export default function Employees() {
   const [search, setSearch] = useState('');
   const [department, setDepartment] = useState('');
   const [status, setStatus] = useState('');
+
+  const departmentOptions = [
+    { value: '', label: 'All Departments' },
+    ...DEPARTMENTS.map((dept) => ({ value: dept, label: dept }))
+  ];
+
+  const statusOptions = [
+    { value: '', label: 'All Statuses' },
+    ...EMPLOYEE_STATUSES
+  ];
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -131,39 +142,27 @@ export default function Employees() {
           </div>
 
           <div className="filter-group">
-            <select
-              className="form-select"
+            <AccordionSelect
+              options={departmentOptions}
               value={department}
-              onChange={(e) => {
-                setDepartment(e.target.value);
+              placeholder="All Departments"
+              onChange={(val) => {
+                setDepartment(val);
                 setPage(1);
               }}
-            >
-              <option value="">All Departments</option>
-              {DEPARTMENTS.map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           <div className="filter-group">
-            <select
-              className="form-select"
+            <AccordionSelect
+              options={statusOptions}
               value={status}
-              onChange={(e) => {
-                setStatus(e.target.value);
+              placeholder="All Statuses"
+              onChange={(val) => {
+                setStatus(val);
                 setPage(1);
               }}
-            >
-              <option value="">All Statuses</option>
-              {EMPLOYEE_STATUSES.map((st) => (
-                <option key={st.value} value={st.value}>
-                  {st.label}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           {(search || department || status) && (

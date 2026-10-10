@@ -222,8 +222,3 @@ npm test
    - `VITE_API_URL`: `https://your-render-service.onrender.com` (no trailing slash)
 4. Deploy. Vercel automatically honors `frontend/vercel.json` for client-side routing rewrites.
 5. Update `CLIENT_ORIGIN` on Render with your Vercel URL and restart the web service.
-
----
-
-## 📄 License
-MIT License.

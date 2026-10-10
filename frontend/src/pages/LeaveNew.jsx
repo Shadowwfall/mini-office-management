@@ -5,11 +5,13 @@ import { LEAVE_TYPES } from '../constants';
 import { useAuth } from '../context/AuthContext';
 import ErrorBanner from '../components/ErrorBanner';
 import LoadingMessage from '../components/LoadingMessage';
+import { useErrorShake } from '../hooks/useErrorShake';
 
 export default function LeaveNew() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isEmployee = user?.role === 'employee';
+  const { shakingFields, triggerShake, clearShake } = useErrorShake();
 
   const [employees, setEmployees] = useState([]);
   const [loadingEmployees, setLoadingEmployees] = useState(!isEmployee);
@@ -81,7 +83,12 @@ export default function LeaveNew() {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const errorKeys = Object.keys(newErrors);
+    if (errorKeys.length > 0) {
+      triggerShake(errorKeys);
+      return false;
+    }
+    return true;
   }
 
   function handleChange(e) {
@@ -89,6 +96,7 @@ export default function LeaveNew() {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
+      clearShake(name);
     }
   }
 
@@ -143,7 +151,8 @@ export default function LeaveNew() {
       <div className="card form-card">
         <form onSubmit={handleSubmit} className="form-body" noValidate>
           <div className="form-grid">
-            <div className="form-group" style={{ gridColumn: 'span 2' }}>
+            {/* Employee Selection */}
+            <div className={`form-group t-input-wrap ${errors.employeeId ? 'is-error' : ''}`} style={{ gridColumn: 'span 2' }}>
               <label htmlFor="employeeId" className="form-label">
                 Employee <span className="text-danger">*</span>
               </label>
@@ -151,7 +160,7 @@ export default function LeaveNew() {
                 <div
                   style={{
                     padding: '8px 12px',
-                    backgroundColor: 'var(--color-bg-secondary)',
+                    backgroundColor: 'var(--color-surface-hover)',
                     borderRadius: 'var(--radius-md)',
                     border: '1px solid var(--color-border)',
                     fontSize: '0.875rem'
@@ -167,7 +176,7 @@ export default function LeaveNew() {
                 <select
                   id="employeeId"
                   name="employeeId"
-                  className={`form-select ${errors.employeeId ? 'is-invalid' : ''}`}
+                  className={`form-select t-input ${errors.employeeId ? 'is-invalid is-error' : ''} ${shakingFields.employeeId ? 'is-shaking' : ''}`}
                   value={formData.employeeId}
                   onChange={handleChange}
                   disabled={isSubmitting}
@@ -179,17 +188,18 @@ export default function LeaveNew() {
                   ))}
                 </select>
               )}
-              {errors.employeeId && <p className="form-error">{errors.employeeId}</p>}
+              {errors.employeeId && <p className="form-error t-error-msg">{errors.employeeId}</p>}
             </div>
 
-            <div className="form-group" style={{ gridColumn: 'span 2' }}>
+            {/* Leave Type */}
+            <div className={`form-group t-input-wrap ${errors.leaveType ? 'is-error' : ''}`} style={{ gridColumn: 'span 2' }}>
               <label htmlFor="leaveType" className="form-label">
                 Leave Type <span className="text-danger">*</span>
               </label>
               <select
                 id="leaveType"
                 name="leaveType"
-                className={`form-select ${errors.leaveType ? 'is-invalid' : ''}`}
+                className={`form-select t-input ${errors.leaveType ? 'is-invalid is-error' : ''} ${shakingFields.leaveType ? 'is-shaking' : ''}`}
                 value={formData.leaveType}
                 onChange={handleChange}
                 disabled={isSubmitting}
@@ -200,10 +210,11 @@ export default function LeaveNew() {
                   </option>
                 ))}
               </select>
-              {errors.leaveType && <p className="form-error">{errors.leaveType}</p>}
+              {errors.leaveType && <p className="form-error t-error-msg">{errors.leaveType}</p>}
             </div>
 
-            <div className="form-group">
+            {/* Start Date */}
+            <div className={`form-group t-input-wrap ${errors.startDate ? 'is-error' : ''}`}>
               <label htmlFor="startDate" className="form-label">
                 Start Date <span className="text-danger">*</span>
               </label>
@@ -211,15 +222,16 @@ export default function LeaveNew() {
                 id="startDate"
                 name="startDate"
                 type="date"
-                className={`form-input ${errors.startDate ? 'is-invalid' : ''}`}
+                className={`form-input t-input ${errors.startDate ? 'is-invalid is-error' : ''} ${shakingFields.startDate ? 'is-shaking' : ''}`}
                 value={formData.startDate}
                 onChange={handleChange}
                 disabled={isSubmitting}
               />
-              {errors.startDate && <p className="form-error">{errors.startDate}</p>}
+              {errors.startDate && <p className="form-error t-error-msg">{errors.startDate}</p>}
             </div>
 
-            <div className="form-group">
+            {/* End Date */}
+            <div className={`form-group t-input-wrap ${errors.endDate ? 'is-error' : ''}`}>
               <label htmlFor="endDate" className="form-label">
                 End Date <span className="text-danger">*</span>
               </label>
@@ -227,15 +239,16 @@ export default function LeaveNew() {
                 id="endDate"
                 name="endDate"
                 type="date"
-                className={`form-input ${errors.endDate ? 'is-invalid' : ''}`}
+                className={`form-input t-input ${errors.endDate ? 'is-invalid is-error' : ''} ${shakingFields.endDate ? 'is-shaking' : ''}`}
                 value={formData.endDate}
                 onChange={handleChange}
                 disabled={isSubmitting}
               />
-              {errors.endDate && <p className="form-error">{errors.endDate}</p>}
+              {errors.endDate && <p className="form-error t-error-msg">{errors.endDate}</p>}
             </div>
 
-            <div className="form-group" style={{ gridColumn: 'span 2' }}>
+            {/* Reason */}
+            <div className={`form-group t-input-wrap ${errors.reason ? 'is-error' : ''}`} style={{ gridColumn: 'span 2' }}>
               <label htmlFor="reason" className="form-label">
                 Reason <span className="text-danger">*</span>
               </label>
@@ -243,13 +256,13 @@ export default function LeaveNew() {
                 id="reason"
                 name="reason"
                 rows="4"
-                className={`form-input ${errors.reason ? 'is-invalid' : ''}`}
+                className={`form-input t-input ${errors.reason ? 'is-invalid is-error' : ''} ${shakingFields.reason ? 'is-shaking' : ''}`}
                 placeholder="Brief description for the requested time off..."
                 value={formData.reason}
                 onChange={handleChange}
                 disabled={isSubmitting}
               />
-              {errors.reason && <p className="form-error">{errors.reason}</p>}
+              {errors.reason && <p className="form-error t-error-msg">{errors.reason}</p>}
             </div>
           </div>
 
