@@ -484,6 +484,7 @@ a {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.25rem;
+  align-items: start;
 }
 
 @media (min-width: 640px) {
@@ -1393,6 +1394,28 @@ a {
 .t-acc-select[data-open="true"] {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.t-acc-select.is-invalid,
+.t-acc-select.is-error {
+  border-color: var(--color-danger);
+}
+
+.t-acc-select.is-invalid:focus-within,
+.t-acc-select.is-error:focus-within,
+.t-acc-select.is-invalid[data-open="true"],
+.t-acc-select.is-error[data-open="true"] {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+.t-acc-select.is-shaking {
+  animation: t-input-shake calc(var(--shake-dur-a) * 2 + var(--shake-dur-b) * 2) linear;
+}
+
+.t-acc-select button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .t-acc-select .t-acc-head {

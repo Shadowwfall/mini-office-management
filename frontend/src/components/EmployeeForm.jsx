@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DEPARTMENTS, EMPLOYEE_STATUSES } from '../constants';
 import { useErrorShake } from '../hooks/useErrorShake';
+import AccordionSelect from './AccordionSelect';
+
+const departmentOptions = DEPARTMENTS.map((dept) => ({
+  value: dept,
+  label: dept
+}));
 
 export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting, title }) {
   const navigate = useNavigate();
@@ -62,6 +68,14 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
 
   function handleChange(e) {
     const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+      clearShake(name);
+    }
+  }
+
+  function handleSelectChange(name, value) {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
@@ -164,20 +178,17 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
             <label htmlFor="department" className="form-label">
               Department <span className="text-danger">*</span>
             </label>
-            <select
+            <AccordionSelect
               id="department"
               name="department"
-              className={`form-select t-input ${errors.department ? 'is-invalid is-error' : ''} ${shakingFields.department ? 'is-shaking' : ''}`}
+              options={departmentOptions}
               value={formData.department}
-              onChange={handleChange}
+              placeholder="Select Department"
               disabled={isSubmitting}
-            >
-              {DEPARTMENTS.map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
-                </option>
-              ))}
-            </select>
+              hasError={Boolean(errors.department)}
+              isShaking={Boolean(shakingFields.department)}
+              onChange={(val) => handleSelectChange('department', val)}
+            />
             {errors.department && (
               <p className="form-error t-error-msg">{errors.department}</p>
             )}
@@ -227,20 +238,15 @@ export default function EmployeeForm({ initialData = {}, onSubmit, isSubmitting,
             <label htmlFor="status" className="form-label">
               Status <span className="text-danger">*</span>
             </label>
-            <select
+            <AccordionSelect
               id="status"
               name="status"
-              className="form-select t-input"
+              options={EMPLOYEE_STATUSES}
               value={formData.status}
-              onChange={handleChange}
+              placeholder="Select Status"
               disabled={isSubmitting}
-            >
-              {EMPLOYEE_STATUSES.map((st) => (
-                <option key={st.value} value={st.value}>
-                  {st.label}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => handleSelectChange('status', val)}
+            />
           </div>
         </div>
 
